@@ -1,2 +1,11 @@
-// Archivo principal de Orders Service
-console.log('Orders Service inicializado. (Placeholder para NestJS)');
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+  await app.listen(3000);
+  console.log('Orders Service inicializado en el puerto 3000');
+}
+bootstrap();
