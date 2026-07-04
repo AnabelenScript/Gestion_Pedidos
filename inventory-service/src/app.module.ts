@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrdersModule } from './orders/orders.module';
-import { RedisModule } from './redis/redis.module';
-import { SagaModule } from './saga/saga.module';
 
 @Module({
   imports: [
@@ -27,9 +24,6 @@ import { SagaModule } from './saga/saga.module';
       }),
       inject: [ConfigService],
     }),
-    OrdersModule,
-    RedisModule,
-    SagaModule,
   ],
 })
 export class AppModule {}
