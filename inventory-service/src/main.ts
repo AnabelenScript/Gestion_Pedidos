@@ -1,2 +1,21 @@
-// Archivo principal de Inventory Service
-console.log('Inventory Service inicializado. (Placeholder para NestJS)');
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+
+  const config = new DocumentBuilder()
+    .setTitle('Inventory Service')
+    .setDescription('Control de stock y reservas')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
+  await app.listen(3001);
+  console.log('Inventory Service inicializado en el puerto 3001');
+}
+bootstrap();
