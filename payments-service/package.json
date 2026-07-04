@@ -1,0 +1,9 @@
+{
+  "name": "payments-service",
+  "version": "1.0.0",
+  "description": "Autorización, confirmación o reverso de pagos",
+  "main": "src/main.ts",
+  "scripts": {
+    "start": "ts-node src/main.ts"
+  }
+}

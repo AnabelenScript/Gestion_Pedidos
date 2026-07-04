@@ -1,0 +1,9 @@
+{
+  "name": "orders-service",
+  "version": "1.0.0",
+  "description": "Orquestador de pedidos y Saga",
+  "main": "src/main.ts",
+  "scripts": {
+    "start": "ts-node src/main.ts"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "inventory-service",
+  "version": "1.0.0",
+  "description": "Control de stock y reservas",
+  "main": "src/main.ts",
+  "scripts": {
+    "start": "ts-node src/main.ts"
+  }
+}
