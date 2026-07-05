@@ -58,6 +58,16 @@ export function validateEnvironment(config: Record<string, unknown>) {
     'DATABASE_SYNCHRONIZE',
     false,
   );
+  validated.DATABASE_RUN_MIGRATIONS = boolean(
+    config.DATABASE_RUN_MIGRATIONS,
+    'DATABASE_RUN_MIGRATIONS',
+    false,
+  );
+  validated.SEED_DEMO_DATA = boolean(
+    config.SEED_DEMO_DATA,
+    'SEED_DEMO_DATA',
+    false,
+  );
 
   return validated;
 }

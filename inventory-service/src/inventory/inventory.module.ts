@@ -6,6 +6,7 @@ import { Product } from './entities/product.entity';
 import { Reservation } from './entities/reservation.entity';
 import { ReservationsController } from './reservations.controller';
 import { InternalApiKeyGuard } from '../auth/internal-api-key.guard';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product, Reservation])],
@@ -13,16 +14,14 @@ import { InternalApiKeyGuard } from '../auth/internal-api-key.guard';
   providers: [InventoryService, InternalApiKeyGuard],
 })
 export class InventoryModule implements OnModuleInit {
-  constructor(private readonly inventoryService: InventoryService) {}
+  constructor(
+    private readonly inventoryService: InventoryService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async onModuleInit() {
-    // Seed some products
-    try {
-      await this.inventoryService.getStock('SKU-123');
-    } catch {
-      const productRepo = (this.inventoryService as any).productRepo;
-      await productRepo.save({ sku: 'SKU-123', name: 'Laptop', stock: 100 });
-      await productRepo.save({ sku: 'SKU-456', name: 'Mouse', stock: 50 });
+    if (this.configService.getOrThrow<boolean>('SEED_DEMO_DATA')) {
+      await this.inventoryService.seedDemoProducts();
     }
   }
 }

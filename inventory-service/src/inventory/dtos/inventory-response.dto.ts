@@ -12,6 +12,9 @@ export class ProductResponseDto {
 
   @ApiProperty({ example: 100 })
   stock: number;
+
+  @ApiProperty({ example: 999.99 })
+  unitPrice: number;
 }
 
 export class ReservationResponseDto {
@@ -26,6 +29,9 @@ export class ReservationResponseDto {
 
   @ApiProperty({ example: 2 })
   quantity: number;
+
+  @ApiProperty({ example: 999.99 })
+  unitPrice: number;
 
   @ApiProperty({ enum: ['PENDING', 'CONFIRMED', 'CANCELLED'] })
   status: string;
