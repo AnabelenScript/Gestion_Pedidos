@@ -1,23 +1,17 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
 @Entity()
-export class Order {
+export class Payment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  userId: string;
-
-  @Column()
-  sku: string;
-
-  @Column()
-  quantity: number;
+  orderId: string;
 
   @Column('decimal')
-  totalAmount: number;
+  amount: number;
 
-  @Column({ default: 'PENDING' }) // PENDING, CONFIRMED, CANCELLED
+  @Column({ default: 'AUTHORIZED' }) // AUTHORIZED, VOIDED
   status: string;
 
   @CreateDateColumn()

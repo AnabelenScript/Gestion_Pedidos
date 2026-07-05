@@ -1,21 +1,18 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
 @Entity()
-export class Order {
+export class Reservation {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  userId: string;
+  orderId: string;
 
   @Column()
   sku: string;
 
   @Column()
   quantity: number;
-
-  @Column('decimal')
-  totalAmount: number;
 
   @Column({ default: 'PENDING' }) // PENDING, CONFIRMED, CANCELLED
   status: string;

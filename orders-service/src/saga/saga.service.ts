@@ -1,60 +1,61 @@
-import { Injectable } from '@nestjs/common';
-import { RedisService } from '../redis/redis.service';
-import { Order } from '../orders/entities/order.entity';
-import { v4 as uuidv4 } from 'uuid';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SagaService {
-  constructor(private readonly redisService: RedisService) {}
+  private readonly logger = new Logger(SagaService.name);
+  private inventoryUrl: string;
+  private paymentsUrl: string;
 
-  async startOrderSaga(order: Order, paymentData: any) {
-    // According to architecture:
-    // Orders Service -> Inventory Service (REST: Reservar stock)
-    // Orders Service -> Payments Service (REST: Autorizar pago)
-    // Here we simulate the REST calls and then publish the success/failure event
+  constructor(private configService: ConfigService) {
+    this.inventoryUrl = this.configService.get<string>('INVENTORY_URL') || 'http://localhost:3001';
+    this.paymentsUrl = this.configService.get<string>('PAYMENTS_URL') || 'http://localhost:3002';
+  }
 
-    try {
-      console.log(`[Saga] Simulando llamada a Inventory Service (POST /reservations)...`);
-      order.reservationId = `res-${uuidv4().substring(0, 8)}`;
+  async reserveInventory(orderId: string, sku: string, quantity: number) {
+    this.logger.log(`Calling Inventory Service to reserve ${quantity} of ${sku}`);
+    const response = await fetch(`${this.inventoryUrl}/inventory/reservations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, sku, quantity }),
+    });
 
-      console.log(`[Saga] Simulando llamada a Payments Service (POST /payments/authorize)...`);
-      order.paymentId = `pay-${uuidv4().substring(0, 8)}`;
+    if (!response.ok) {
+      throw new Error('Failed to reserve inventory');
+    }
+    return response.json();
+  }
 
-      // Si todo sale bien, publicar order.confirmed
-      const payload = {
-        eventId: uuidv4(),
-        eventType: 'order.confirmed',
-        occurredAt: new Date().toISOString(),
-        data: {
-          orderId: order.orderId,
-          reservationId: order.reservationId,
-          customerId: order.customerId,
-          total: order.total,
-          items: order.items?.map(i => ({ sku: i.sku, quantity: i.quantity })) || [],
-        }
-      };
-      await this.redisService.publish('orders', payload);
-      console.log(`[Saga] Evento publicado: order.confirmed para ${order.orderId}`);
-
-    } catch (error: any) {
-      // Si falla, iniciar compensación
-      console.log(`[Saga] Error en Saga para la orden ${order.orderId}. Compensando...`);
-      await this.compensateOrderCancelled(order, error.message);
+  async confirmInventoryReservation(reservationId: string) {
+    const response = await fetch(`${this.inventoryUrl}/inventory/reservations/${reservationId}/confirm`, {
+      method: 'POST',
+    });
+    if (!response.ok) {
+        this.logger.error(`Failed to confirm reservation ${reservationId}`);
     }
   }
 
-  async compensateOrderCancelled(order: Order, reason: string = 'User Cancelled o fallo en saga') {
-    const payload = {
-      eventId: uuidv4(),
-      eventType: 'order.cancelled',
-      occurredAt: new Date().toISOString(),
-      data: {
-        orderId: order.orderId,
-        reservationId: order.reservationId,
-        reason
-      }
-    };
-    await this.redisService.publish('orders', payload);
-    console.log(`[Saga] Evento publicado (Compensación): order.cancelled para ${order.orderId}`);
+  async cancelInventoryReservation(reservationId: string) {
+    this.logger.log(`Compensating: Cancelling reservation ${reservationId}`);
+    const response = await fetch(`${this.inventoryUrl}/inventory/reservations/${reservationId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+        this.logger.error(`Failed to cancel reservation ${reservationId}`);
+    }
+  }
+
+  async authorizePayment(orderId: string, amount: number) {
+    this.logger.log(`Calling Payments Service to authorize payment of ${amount}`);
+    const response = await fetch(`${this.paymentsUrl}/payments/authorize`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, amount }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to authorize payment');
+    }
+    return response.json();
   }
 }
