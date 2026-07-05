@@ -1,5 +1,46 @@
 # Arquitectura de Gestión de Pedidos
 
+## Diagrama de Arquitectura (Síncrono y Asíncrono)
+
+```mermaid
+graph TD
+    Client((Cliente REST))
+
+    subgraph Orchestrator [Dominio Órdenes]
+        O[Orders Service<br/>Port 3000]
+        O_DB[(Orders DB<br/>AWS RDS)]
+        O -->|TypeORM| O_DB
+    end
+
+    subgraph Inventory [Dominio Inventario]
+        I[Inventory Service<br/>Port 3001]
+        I_DB[(Inventory DB<br/>AWS RDS)]
+        I -->|TypeORM| I_DB
+    end
+
+    subgraph Payments [Dominio Pagos]
+        P[Payments Service<br/>Port 3002]
+        P_DB[(Payments DB<br/>AWS RDS)]
+        P -->|TypeORM| P_DB
+    end
+
+    R((Redis<br/>Pub/Sub))
+
+    Client -->|1. POST /orders| O
+    
+    O -->|2. POST /reservations (REST)| I
+    O -->|3. POST /authorize (REST)| P
+    O -->|4. POST /confirm (REST)| I
+
+    O -.->|5. Pub: 'order.confirmed' (Async)| R
+    O -.->|Compensación: 'order.cancelled'| R
+    R -.->|Sub: Escucha eventos| I
+
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    
+    linkStyle 1,2,3,4 stroke:#0f5132,stroke-width:2px
+    linkStyle 5,6,7 stroke:#856404,stroke-width:2px,stroke-dasharray: 5 5
+```
 ## 1. Servicios Reales y Responsabilidades
 
 | Servicio | Responsabilidad exclusiva | Base de datos propia | ¿Es servicio real? |
