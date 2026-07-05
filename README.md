@@ -30,3 +30,5 @@ docker-compose up --build
 ```
 
 El endpoint `POST /v1/auth/login` sólo está disponible cuando `ENABLE_DEV_AUTH=true`. Los endpoints de Inventory y Payments requieren el header `x-internal-api-key`; Orders lo agrega automáticamente en sus llamadas internas.
+
+Cada servicio ejecuta sus migraciones al iniciar cuando `DATABASE_RUN_MIGRATIONS=true`. `DATABASE_SYNCHRONIZE` debe permanecer desactivado fuera de prototipos desechables.

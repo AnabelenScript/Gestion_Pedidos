@@ -85,6 +85,11 @@ export function validateEnvironment(config: Record<string, unknown>) {
     'DATABASE_SYNCHRONIZE',
     false,
   );
+  validated.DATABASE_RUN_MIGRATIONS = boolean(
+    config.DATABASE_RUN_MIGRATIONS,
+    'DATABASE_RUN_MIGRATIONS',
+    false,
+  );
   validated.ENABLE_DEV_AUTH = boolean(
     config.ENABLE_DEV_AUTH,
     'ENABLE_DEV_AUTH',

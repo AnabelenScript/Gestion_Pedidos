@@ -70,6 +70,20 @@ Escenario: el inventario sí se reservó, pero el pago falla.
 | Falla la confirmación del pedido después del pago | Cancelar pago y liberar inventario |
 | Pedido cancelado | Publicar `order.cancelled` y liberar reserva |
 
+### Estados persistidos de la Saga
+
+| Estado | Significado |
+|---|---|
+| `PENDING` | Pedido creado antes de reservar inventario |
+| `INVENTORY_RESERVED` | Stock reservado y total calculado con el precio de Inventory |
+| `PAYMENT_AUTHORIZED` | Pago autorizado y listo para confirmar inventario |
+| `CONFIRMED` | Saga completada correctamente |
+| `COMPENSATING` | Se están revirtiendo pago e inventario en orden inverso |
+| `CANCELLED` | Todas las compensaciones concluyeron |
+| `COMPENSATION_FAILED` | Alguna compensación debe reintentarse |
+
+Orders conserva `reservationId`, `paymentId` y `failureReason` para que una cancelación o reintento no dependa de información en memoria. Inventory y Payments hacen idempotentes sus operaciones por `orderId`.
+
 ## 3. Contratos OpenAPI Resumidos
 
 ### Orders Service (`http://localhost:3000`)
@@ -95,9 +109,11 @@ Escenario: el inventario sí se reservó, pero el pago falla.
 - **Publicado por**: Orders Service
 - **Consumido por**: Inventory Service
 - **Propósito**: Confirmar la reserva y descontar stock.
+- **Datos actuales**: `orderId`, `reservationId`, `paymentId`, `sku`, `quantity` y `totalAmount`.
 
 ### Evento de compensación: `order.cancelled`
 - **Propósito**: Liberar la reserva en caso de cancelación o fallo en la Saga.
+- **Datos actuales**: `orderId`, `reservationId`, `paymentId`, `reason` y estado final de compensación.
 
 ## 5. Seguridad JWT
 * **Orders Service**: JWT obligatorio en todos los endpoints de pedidos. Ejemplo header: `Authorization: Bearer <jwt>`.

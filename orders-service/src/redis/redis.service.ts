@@ -18,7 +18,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.publisher.disconnect();
   }
 
-  publish(channel: string, message: any) {
-    this.publisher.publish(channel, JSON.stringify(message));
+  publish(channel: string, message: unknown): Promise<number> {
+    return this.publisher.publish(channel, JSON.stringify(message));
   }
 }

@@ -7,6 +7,7 @@ import {
   UseGuards,
   Request,
   ParseUUIDPipe,
+  HttpCode,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dtos/create-order.dto';
@@ -19,6 +20,8 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiUnauthorizedResponse,
+  ApiConflictResponse,
+  ApiServiceUnavailableResponse,
 } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/jwt.guard';
 import { OrderResponseDto } from './dtos/order-response.dto';
@@ -48,5 +51,18 @@ export class OrdersController {
   @ApiNotFoundResponse({ description: 'Pedido no encontrado' })
   getOrder(@Request() req, @Param('id', new ParseUUIDPipe()) id: string) {
     return this.ordersService.getOrder(req.user.sub, id);
+  }
+
+  @Post(':id/cancel')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Cancelar pedido y ejecutar compensaciones' })
+  @ApiOkResponse({ type: OrderResponseDto })
+  @ApiNotFoundResponse({ description: 'Pedido no encontrado' })
+  @ApiConflictResponse({ description: 'El estado no permite cancelar' })
+  @ApiServiceUnavailableResponse({
+    description: 'Alguna compensación requiere reintento',
+  })
+  cancelOrder(@Request() req, @Param('id', new ParseUUIDPipe()) id: string) {
+    return this.ordersService.cancelOrder(req.user.sub, id);
   }
 }

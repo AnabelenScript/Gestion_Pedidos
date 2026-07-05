@@ -10,7 +10,7 @@ El sistema cumple sólidamente con Nivel 4 (Servicios), porque tiene servicios i
 | **Organización y gobierno** | 4 | Hay contratos OpenAPI, PRs, ramas y endpoints versionados bajo `/v1` | Falta una política de compatibilidad y retiro de versiones | Definir la estrategia de deprecación para versiones futuras |
 | **Métodos** | 4 | Cada servicio tiene DTOs, validación, Swagger y pruebas separadas | Falta automatizar pruebas en CI/CD | Agregar GitHub Actions |
 | **Aplicaciones** | 4 | Servicios NestJS independientes con bases de datos separadas | Falta resiliencia avanzada | Agregar retries, timeouts y circuit breakers |
-| **Arquitectura** | 5 (parcial) | Existe composición de servicios mediante Saga orquestada | No hay motor BPM externo ni monitoreo avanzado | Documentar estados de la Saga y agregar logs correlacionados |
+| **Arquitectura** | 5 (parcial) | Existe una Saga orquestada con estados y compensaciones persistidas | No hay motor BPM externo ni monitoreo avanzado | Agregar logs correlacionados |
 | **Información** | 4 | Cada servicio administra sus propios datos sin acceso cruzado | Falta catálogo de eventos | Documentar eventos Redis con payloads y versiones |
 | **Infraestructura** | 4 | Docker Compose levanta servicios, Redis y bases de datos | Falta despliegue productivo real | Desplegar en Render, Railway, AWS, Azure o similar |
 

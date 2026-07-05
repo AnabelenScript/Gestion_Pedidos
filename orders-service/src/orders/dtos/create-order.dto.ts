@@ -1,11 +1,4 @@
-import {
-  IsString,
-  IsInt,
-  IsNumber,
-  Min,
-  IsNotEmpty,
-  MaxLength,
-} from 'class-validator';
+import { IsString, IsInt, Min, IsNotEmpty, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateOrderDto {
@@ -19,9 +12,4 @@ export class CreateOrderDto {
   @IsInt()
   @Min(1)
   quantity: number;
-
-  @ApiProperty({ example: 1999.98, minimum: 0.01 })
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0.01)
-  totalAmount: number;
 }
