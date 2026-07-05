@@ -26,11 +26,11 @@ graph TD
 
     R((Redis<br/>Pub/Sub))
 
-    Client -->|1. POST /orders| O
+    Client -->|1. POST /v1/orders| O
     
-    O -->|2. POST /reservations (REST)| I
-    O -->|3. POST /authorize (REST)| P
-    O -->|4. POST /confirm (REST)| I
+    O -->|2. POST /v1/reservations (REST)| I
+    O -->|3. POST /v1/payments/authorize (REST)| P
+    O -->|4. POST /v1/reservations/:id/confirm (REST)| I
 
     O -.->|5. Pub: 'order.confirmed' (Async)| R
     O -.->|Compensación: 'order.cancelled'| R
@@ -74,20 +74,20 @@ Escenario: el inventario sí se reservó, pero el pago falla.
 
 ### Orders Service (`http://localhost:3000`)
 *(Endpoints protegidos con JWT)*
-* `POST /orders`: Crear pedido y ejecutar Saga
-* `GET /orders/{orderId}`: Consultar pedido
-* `POST /orders/{orderId}/cancel`: Cancelar pedido
+* `POST /v1/orders`: Crear pedido y ejecutar Saga
+* `GET /v1/orders/{orderId}`: Consultar pedido
+* `POST /v1/orders/{orderId}/cancel`: Cancelar pedido
 
 ### Inventory Service (`http://localhost:3001`)
-* `GET /inventory/{sku}`: Consultar stock disponible
-* `POST /reservations`: Crear reserva de inventario
-* `POST /reservations/{reservationId}/confirm`: Confirmar reserva
-* `DELETE /reservations/{reservationId}`: Liberar reserva
+* `GET /v1/inventory/{sku}`: Consultar stock disponible
+* `POST /v1/reservations`: Crear reserva de inventario
+* `POST /v1/reservations/{reservationId}/confirm`: Confirmar reserva
+* `DELETE /v1/reservations/{reservationId}`: Liberar reserva
 
 ### Payments Service (`http://localhost:3002`)
-* `POST /payments/authorize`: Autorizar pago
-* `POST /payments/{paymentId}/void`: Cancelar pago autorizado
-* `GET /payments/{paymentId}`: Consultar pago
+* `POST /v1/payments/authorize`: Autorizar pago
+* `POST /v1/payments/{paymentId}/void`: Cancelar pago autorizado
+* `GET /v1/payments/{paymentId}`: Consultar pago
 
 ## 4. Eventos Redis
 

@@ -1,7 +1,23 @@
-import { Controller, Get, Param, Post, Body, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  HttpCode,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { AuthorizePaymentDto } from './dtos/authorize-payment.dto';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
+import { PaymentResponseDto } from './dtos/payment-response.dto';
 
 @ApiTags('Payments')
 @Controller('payments')
@@ -10,6 +26,8 @@ export class PaymentsController {
 
   @Post('authorize')
   @ApiOperation({ summary: 'Autorizar pago' })
+  @ApiCreatedResponse({ type: PaymentResponseDto })
+  @ApiBadRequestResponse({ description: 'Datos inválidos o pago rechazado' })
   authorizePayment(@Body() dto: AuthorizePaymentDto) {
     return this.paymentsService.authorizePayment(dto);
   }
@@ -17,13 +35,17 @@ export class PaymentsController {
   @Post(':id/void')
   @HttpCode(200)
   @ApiOperation({ summary: 'Cancelar pago autorizado' })
-  voidPayment(@Param('id') id: string) {
+  @ApiOkResponse({ type: PaymentResponseDto })
+  @ApiNotFoundResponse({ description: 'Pago no encontrado' })
+  voidPayment(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.paymentsService.voidPayment(id);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Consultar transacción' })
-  getPayment(@Param('id') id: string) {
+  @ApiOkResponse({ type: PaymentResponseDto })
+  @ApiNotFoundResponse({ description: 'Pago no encontrado' })
+  getPayment(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.paymentsService.getPayment(id);
   }
 }
