@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrdersModule } from './orders/orders.module';
 import { RedisModule } from './redis/redis.module';
 import { SagaModule } from './saga/saga.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SagaModule } from './saga/saga.module';
       }),
       inject: [ConfigService],
     }),
+    AuthModule,
     OrdersModule,
     RedisModule,
     SagaModule,
