@@ -6,13 +6,13 @@ export class SagaService {
   private readonly logger = new Logger(SagaService.name);
   private inventoryUrl: string;
   private paymentsUrl: string;
+  private internalApiKey: string;
 
   constructor(private configService: ConfigService) {
-    this.inventoryUrl =
-      this.configService.get<string>('INVENTORY_URL') ||
-      'http://localhost:3001';
-    this.paymentsUrl =
-      this.configService.get<string>('PAYMENTS_URL') || 'http://localhost:3002';
+    this.inventoryUrl = this.configService.getOrThrow<string>('INVENTORY_URL');
+    this.paymentsUrl = this.configService.getOrThrow<string>('PAYMENTS_URL');
+    this.internalApiKey =
+      this.configService.getOrThrow<string>('INTERNAL_API_KEY');
   }
 
   async reserveInventory(orderId: string, sku: string, quantity: number) {
@@ -21,7 +21,7 @@ export class SagaService {
     );
     const response = await fetch(`${this.inventoryUrl}/v1/reservations`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.headers(true),
       body: JSON.stringify({ orderId, sku, quantity }),
     });
 
@@ -36,6 +36,7 @@ export class SagaService {
       `${this.inventoryUrl}/v1/reservations/${reservationId}/confirm`,
       {
         method: 'POST',
+        headers: this.headers(),
       },
     );
     if (!response.ok) {
@@ -49,6 +50,7 @@ export class SagaService {
       `${this.inventoryUrl}/v1/reservations/${reservationId}`,
       {
         method: 'DELETE',
+        headers: this.headers(),
       },
     );
     if (!response.ok) {
@@ -62,7 +64,7 @@ export class SagaService {
     );
     const response = await fetch(`${this.paymentsUrl}/v1/payments/authorize`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.headers(true),
       body: JSON.stringify({ orderId, amount }),
     });
 
@@ -70,5 +72,12 @@ export class SagaService {
       throw new Error('Failed to authorize payment');
     }
     return response.json();
+  }
+
+  private headers(withJsonContent = false): Record<string, string> {
+    return {
+      ...(withJsonContent ? { 'Content-Type': 'application/json' } : {}),
+      'x-internal-api-key': this.internalApiKey,
+    };
   }
 }

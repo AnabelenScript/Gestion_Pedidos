@@ -24,19 +24,19 @@ import { JwtGuard } from '../auth/jwt.guard';
 import { OrderResponseDto } from './dtos/order-response.dto';
 
 @ApiTags('Orders')
+@ApiBearerAuth()
+@ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+@UseGuards(JwtGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  @UseGuards(JwtGuard)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Crear pedido y ejecutar Saga orquestada' })
   @ApiCreatedResponse({ type: OrderResponseDto })
   @ApiBadRequestResponse({
     description: 'Datos inválidos o fallo durante la Saga',
   })
-  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
   createOrder(@Request() req, @Body() dto: CreateOrderDto) {
     const userId = req.user.sub;
     return this.ordersService.createOrder(userId, dto);
@@ -46,7 +46,7 @@ export class OrdersController {
   @ApiOperation({ summary: 'Consultar pedido' })
   @ApiOkResponse({ type: OrderResponseDto })
   @ApiNotFoundResponse({ description: 'Pedido no encontrado' })
-  getOrder(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.ordersService.getOrder(id);
+  getOrder(@Request() req, @Param('id', new ParseUUIDPipe()) id: string) {
+    return this.ordersService.getOrder(req.user.sub, id);
   }
 }

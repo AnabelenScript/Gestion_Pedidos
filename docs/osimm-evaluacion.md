@@ -19,4 +19,4 @@ El sistema cumple sólidamente con Nivel 4 (Servicios), porque tiene servicios i
 2. **Versionado formal implementado**: Los contratos HTTP usan el prefijo `/v1`; queda pendiente definir la política de deprecación.
 3. **Redis Pub/Sub no persiste**: Evaluar Redis Streams o Kafka para producción.
 4. **Falta observabilidad**: Agregar correlation IDs y logs estructurados.
-5. **Seguridad Parcial**: Propagar JWT o usar API keys internas.
+5. **Seguridad interna implementada**: Orders valida JWT e Inventory y Payments requieren API key; queda pendiente automatizar la rotación de secretos.

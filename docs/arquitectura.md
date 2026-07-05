@@ -100,5 +100,6 @@ Escenario: el inventario sí se reservó, pero el pago falla.
 - **Propósito**: Liberar la reserva en caso de cancelación o fallo en la Saga.
 
 ## 5. Seguridad JWT
-* **Orders Service**: JWT obligatorio. Ejemplo header: `Authorization: Bearer <jwt>`.
-* **Inventory & Payments Service**: Pueden recibir llamadas internas desde Orders.
+* **Orders Service**: JWT obligatorio en todos los endpoints de pedidos. Ejemplo header: `Authorization: Bearer <jwt>`.
+* **Inventory & Payments Service**: Sólo aceptan llamadas internas con el header `x-internal-api-key`.
+* **Autenticación de desarrollo**: `POST /v1/auth/login` sólo se habilita mediante `ENABLE_DEV_AUTH=true` y no debe exponerse en producción.

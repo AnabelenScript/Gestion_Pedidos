@@ -6,6 +6,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -14,12 +15,18 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiSecurity,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { InventoryService } from './inventory.service';
 import { ReserveStockDto } from './dtos/reserve-stock.dto';
 import { ReservationResponseDto } from './dtos/inventory-response.dto';
+import { InternalApiKeyGuard } from '../auth/internal-api-key.guard';
 
 @ApiTags('Reservations')
+@ApiSecurity('internal-api-key')
+@ApiUnauthorizedResponse({ description: 'API key interna ausente o inválida' })
+@UseGuards(InternalApiKeyGuard)
 @Controller('reservations')
 export class ReservationsController {
   constructor(private readonly inventoryService: InventoryService) {}

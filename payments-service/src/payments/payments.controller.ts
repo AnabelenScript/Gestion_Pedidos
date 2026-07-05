@@ -6,6 +6,7 @@ import {
   Body,
   HttpCode,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { AuthorizePaymentDto } from './dtos/authorize-payment.dto';
@@ -16,10 +17,16 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiSecurity,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { PaymentResponseDto } from './dtos/payment-response.dto';
+import { InternalApiKeyGuard } from '../auth/internal-api-key.guard';
 
 @ApiTags('Payments')
+@ApiSecurity('internal-api-key')
+@ApiUnauthorizedResponse({ description: 'API key interna ausente o inválida' })
+@UseGuards(InternalApiKeyGuard)
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}

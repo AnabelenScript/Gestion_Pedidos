@@ -17,6 +17,16 @@ Consulta la documentación completa en la carpeta `docs/`:
 
 ## Ejecutar localmente
 
+Primero crea el archivo local de configuración y reemplaza todos los valores de ejemplo:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+`JWT_SECRET` e `INTERNAL_API_KEY` deben tener al menos 32 caracteres. Las credenciales que estuvieron versionadas anteriormente deben rotarse en el proveedor de base de datos antes de volver a utilizarse.
+
 ```bash
 docker-compose up --build
 ```
+
+El endpoint `POST /v1/auth/login` sólo está disponible cuando `ENABLE_DEV_AUTH=true`. Los endpoints de Inventory y Payments requieren el header `x-internal-api-key`; Orders lo agrega automáticamente en sus llamadas internas.

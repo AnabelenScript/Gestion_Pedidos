@@ -2,17 +2,24 @@ services:
   orders-service:
     build: ./orders-service
     ports:
-      - "3000:3000"
+      - "${ORDERS_PORT:-3000}:${ORDERS_PORT:-3000}"
     environment:
-      INVENTORY_URL: http://inventory-service:3001
-      PAYMENTS_URL: http://payments-service:3002
+      PORT: ${ORDERS_PORT:-3000}
+      INVENTORY_URL: http://inventory-service:${INVENTORY_PORT:-3001}
+      PAYMENTS_URL: http://payments-service:${PAYMENTS_PORT:-3002}
       REDIS_HOST: redis
-      DATABASE_HOST: database-1.cj6tlznf25rb.us-east-1.rds.amazonaws.com
-      DATABASE_PORT: 5432
-      DATABASE_USER: SOAprojectOrder
-      DATABASE_PASS: Project#SOA#37900
-      DATABASE_NAME: postgres
-      JWT_SECRET: supersecret
+      REDIS_PORT: 6379
+      DATABASE_HOST: ${ORDERS_DATABASE_HOST:?Configura ORDERS_DATABASE_HOST}
+      DATABASE_PORT: ${ORDERS_DATABASE_PORT:-5432}
+      DATABASE_USER: ${ORDERS_DATABASE_USER:?Configura ORDERS_DATABASE_USER}
+      DATABASE_PASS: ${ORDERS_DATABASE_PASS:?Configura ORDERS_DATABASE_PASS}
+      DATABASE_NAME: ${ORDERS_DATABASE_NAME:?Configura ORDERS_DATABASE_NAME}
+      DATABASE_SSL: ${ORDERS_DATABASE_SSL:-false}
+      DATABASE_SSL_REJECT_UNAUTHORIZED: ${ORDERS_DATABASE_SSL_REJECT_UNAUTHORIZED:-true}
+      DATABASE_SYNCHRONIZE: ${ORDERS_DATABASE_SYNCHRONIZE:-false}
+      JWT_SECRET: ${JWT_SECRET:?Configura JWT_SECRET}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Configura INTERNAL_API_KEY}
+      ENABLE_DEV_AUTH: ${ENABLE_DEV_AUTH:-false}
     depends_on:
       - redis
       - inventory-service
@@ -21,29 +28,40 @@ services:
   inventory-service:
     build: ./inventory-service
     ports:
-      - "3001:3001"
+      - "${INVENTORY_PORT:-3001}:${INVENTORY_PORT:-3001}"
     environment:
+      PORT: ${INVENTORY_PORT:-3001}
       REDIS_HOST: redis
-      DATABASE_HOST: database-2.cj6tlznf25rb.us-east-1.rds.amazonaws.com
-      DATABASE_PORT: 5432
-      DATABASE_USER: SOAprojectOrder
-      DATABASE_PASS: Project#SOA#37900
-      DATABASE_NAME: postgres
+      REDIS_PORT: 6379
+      DATABASE_HOST: ${INVENTORY_DATABASE_HOST:?Configura INVENTORY_DATABASE_HOST}
+      DATABASE_PORT: ${INVENTORY_DATABASE_PORT:-5432}
+      DATABASE_USER: ${INVENTORY_DATABASE_USER:?Configura INVENTORY_DATABASE_USER}
+      DATABASE_PASS: ${INVENTORY_DATABASE_PASS:?Configura INVENTORY_DATABASE_PASS}
+      DATABASE_NAME: ${INVENTORY_DATABASE_NAME:?Configura INVENTORY_DATABASE_NAME}
+      DATABASE_SSL: ${INVENTORY_DATABASE_SSL:-false}
+      DATABASE_SSL_REJECT_UNAUTHORIZED: ${INVENTORY_DATABASE_SSL_REJECT_UNAUTHORIZED:-true}
+      DATABASE_SYNCHRONIZE: ${INVENTORY_DATABASE_SYNCHRONIZE:-false}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Configura INTERNAL_API_KEY}
     depends_on:
       - redis
 
   payments-service:
     build: ./payments-service
     ports:
-      - "3002:3002"
+      - "${PAYMENTS_PORT:-3002}:${PAYMENTS_PORT:-3002}"
     environment:
-      DATABASE_HOST: database-3-soa.cj6tlznf25rb.us-east-1.rds.amazonaws.com
-      DATABASE_PORT: 5432
-      DATABASE_USER: SOAprojectOrder
-      DATABASE_PASS: Project#SOA#37900
-      DATABASE_NAME: postgres
+      PORT: ${PAYMENTS_PORT:-3002}
+      DATABASE_HOST: ${PAYMENTS_DATABASE_HOST:?Configura PAYMENTS_DATABASE_HOST}
+      DATABASE_PORT: ${PAYMENTS_DATABASE_PORT:-5432}
+      DATABASE_USER: ${PAYMENTS_DATABASE_USER:?Configura PAYMENTS_DATABASE_USER}
+      DATABASE_PASS: ${PAYMENTS_DATABASE_PASS:?Configura PAYMENTS_DATABASE_PASS}
+      DATABASE_NAME: ${PAYMENTS_DATABASE_NAME:?Configura PAYMENTS_DATABASE_NAME}
+      DATABASE_SSL: ${PAYMENTS_DATABASE_SSL:-false}
+      DATABASE_SSL_REJECT_UNAUTHORIZED: ${PAYMENTS_DATABASE_SSL_REJECT_UNAUTHORIZED:-true}
+      DATABASE_SYNCHRONIZE: ${PAYMENTS_DATABASE_SYNCHRONIZE:-false}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Configura INTERNAL_API_KEY}
 
   redis:
     image: redis:7
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
