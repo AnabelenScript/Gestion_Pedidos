@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CreateOrderDto } from './dtos/create-order.dto';
 import { SagaService } from '../saga/saga.service';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order) private orderRepo: Repository<Order>,
     private sagaService: SagaService,
+    private redisService: RedisService
   ) {}
 
   async createOrder(userId: string, dto: CreateOrderDto) {
@@ -30,6 +32,9 @@ export class OrdersService {
 
       order.status = 'CONFIRMED';
       await this.orderRepo.save(order);
+      
+      this.redisService.publish('order.confirmed', { orderId: order.id, sku: order.sku, quantity: order.quantity });
+      
       return order;
     } catch (error: any) {
       if (reservation) {
@@ -38,6 +43,9 @@ export class OrdersService {
       
       order.status = 'CANCELLED';
       await this.orderRepo.save(order);
+      
+      this.redisService.publish('order.cancelled', { orderId: order.id, reason: error.message });
+      
       throw new BadRequestException('Saga failed: ' + error.message);
     }
   }
