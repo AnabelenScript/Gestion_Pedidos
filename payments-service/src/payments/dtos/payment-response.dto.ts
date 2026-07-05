@@ -15,4 +15,7 @@ export class PaymentResponseDto {
 
   @ApiProperty({ format: 'date-time' })
   createdAt: Date;
+
+  @ApiProperty({ format: 'date-time' })
+  updatedAt: Date;
 }

@@ -56,6 +56,11 @@ export function validateEnvironment(config: Record<string, unknown>) {
     'DATABASE_SYNCHRONIZE',
     false,
   );
+  validated.DATABASE_RUN_MIGRATIONS = boolean(
+    config.DATABASE_RUN_MIGRATIONS,
+    'DATABASE_RUN_MIGRATIONS',
+    false,
+  );
 
   return validated;
 }

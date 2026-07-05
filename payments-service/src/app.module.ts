@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PaymentsModule } from './payments/payments.module';
 import { validateEnvironment } from './config/environment';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -20,6 +21,10 @@ import { validateEnvironment } from './config/environment';
         password: configService.getOrThrow<string>('DATABASE_PASS'),
         database: configService.getOrThrow<string>('DATABASE_NAME'),
         autoLoadEntities: true,
+        migrations: [join(__dirname, 'database/migrations/*{.ts,.js}')],
+        migrationsRun: configService.getOrThrow<boolean>(
+          'DATABASE_RUN_MIGRATIONS',
+        ),
         synchronize: configService.getOrThrow<boolean>('DATABASE_SYNCHRONIZE'),
         ssl: configService.getOrThrow<boolean>('DATABASE_SSL')
           ? {
