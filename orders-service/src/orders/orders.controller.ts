@@ -1,25 +1,26 @@
-import { Controller, Post, Get, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, UseGuards, Request } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateOrderDto } from './dtos/create-order.dto';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtGuard } from '../auth/jwt.guard';
 
+@ApiTags('Orders')
 @Controller('orders')
-@UseGuards(JwtAuthGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  createOrder(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.createOrder(createOrderDto);
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Crear pedido y ejecutar Saga orquestada' })
+  createOrder(@Request() req, @Body() dto: CreateOrderDto) {
+    const userId = req.user.sub;
+    return this.ordersService.createOrder(userId, dto);
   }
 
-  @Get(':orderId')
-  getOrder(@Param('orderId') orderId: string) {
-    return this.ordersService.getOrder(orderId);
-  }
-
-  @Post(':orderId/cancel')
-  cancelOrder(@Param('orderId') orderId: string) {
-    return this.ordersService.cancelOrder(orderId);
+  @Get(':id')
+  @ApiOperation({ summary: 'Consultar pedido' })
+  getOrder(@Param('id') id: string) {
+    return this.ordersService.getOrder(id);
   }
 }

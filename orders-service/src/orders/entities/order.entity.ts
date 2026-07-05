@@ -1,40 +1,25 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn } from 'typeorm';
-import { OrderItem } from './order-item.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
-export enum OrderStatus {
-  PENDING = 'PENDING',
-  CONFIRMED = 'CONFIRMED',
-  FAILED = 'FAILED',
-  CANCELLED = 'CANCELLED',
-}
-
-@Entity('orders')
+@Entity()
 export class Order {
   @PrimaryGeneratedColumn('uuid')
-  orderId: string;
+  id: string;
 
   @Column()
-  customerId: string;
+  userId: string;
 
-  @Column({
-    type: 'enum',
-    enum: OrderStatus,
-    default: OrderStatus.PENDING,
-  })
-  status: OrderStatus;
+  @Column()
+  sku: string;
 
-  @Column('decimal', { precision: 12, scale: 2, default: 0 })
-  total: number;
+  @Column()
+  quantity: number;
 
-  @Column({ nullable: true })
-  reservationId: string;
+  @Column('decimal')
+  totalAmount: number;
 
-  @Column({ nullable: true })
-  paymentId: string;
+  @Column({ default: 'PENDING' }) // PENDING, CONFIRMED, CANCELLED
+  status: string;
 
   @CreateDateColumn()
   createdAt: Date;
-
-  @OneToMany(() => OrderItem, item => item.order, { cascade: true })
-  items: OrderItem[];
 }
